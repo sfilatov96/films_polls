@@ -1,0 +1,120 @@
+{% extends "films_polls/base.html" %}
+{% load static %}
+
+
+{% block carusel %}
+<div id="myCarousel" class="carousel slide" data-ride="carousel" xmlns="http://www.w3.org/1999/html">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner" role="listbox">
+        <div class="item active">
+          <img class="first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Добро пожаловать на сайт кинокритиков!</h1>
+              <p>Если вы читаете эту надпись то вы обязаны зарегистрироваться на нашем сайте, чтобы не обидеть автора!</p>
+              <p><a class="btn btn-lg btn-primary" href="{% url 'signup' %}" role="button">Зарегистрироваться</a></p>
+            </div>
+          </div>
+        </div>
+          <div class="item">
+          <img class="first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Однако</h1>
+              <p>Если вы являетесь пользователем сайта, то немедленно войдите и оставьте новую оценку!</p>
+              <p><a class="btn btn-lg btn-primary" href="{% url 'login' %}" role="button">Войти</a></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div><!-- /.carousel -->
+{% endblock %}
+
+{% block content %}
+    <div class="btn-group" class="sorter">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Сортировать по <span class="caret"></span>
+  </button>
+    <ul class="dropdown-menu">
+        <li><a href="{% url 'index' %}?order=alphabet" class="order">Алфавиту</a></li>
+    <li><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
+    <li><a href="{% url 'index' %}?order=rating" class="order">Рейтингу</a></li>
+    <li><a href="{% url 'index' %}?order=popularity"   class="order">Популярности</a></li>
+  </ul>
+</div>
+<div id="container">
+    {% for i in films %}
+    <div class="row film-row">
+        {% for j in i%}
+        <div class="col-lg-4">
+          <img class="img-circle" src="{% get_media_prefix %}{{j.photo}}" alt="Generic placeholder image" width="140" height="140">
+          <h2>{{j.title}} </h2>
+          <h4>{{j.text}}</h4>
+            <p><b>Количество голосов: {{j.cnt}}</b></p>
+            <p><b>Средний балл: {{j.average}}</b></p>
+          <p><i>Опубликовано: {{j.pub_date}}</i></p>
+
+          <p><a class="btn btn-default" href="{% url 'film' %}{{j.id}}" role="button">Подробнее&raquo;</a></p>
+
+            {% if request.session.is_superuser %}
+            <form id="superuser_form">
+            {% csrf_token %}
+            <input type="hidden" name="address" value="{% url 'index' %}{{j.id}}">
+            <p><button class="btn btn-danger remove" type="submit">Удалить</button></p>
+            <p><button class="btn btn-warning update" type="submit">Изменить</button></p>
+
+            </form>
+            {% endif %}
+
+        </div><!-- /.col-lg-4 -->
+        {% endfor%}
+      </div><!-- /.row -->
+    {% endfor %}
+</div>
+    <script>
+        jQuery(document).ready(function ($) {
+        $('.order').click(function (event) {
+            event.preventDefault();
+            var link = event.toElement.href
+            $.ajax({
+                url: link,
+                success: function(){
+                 $("#container").load(link + " #container");
+            }
+            });
+
+        })
+        $('#superuser_form').submit(function (event) {
+            event.preventDefault();
+            var link = $("input[name=address]").val()
+            $.ajax({
+                type: "POST",
+                url: link,
+                dataType:"html",
+                data: {
+                "remove":true,
+                "csrfmiddlewaretoken": $('#superuser_form input[name=csrfmiddlewaretoken]').val()},
+                success: function(){
+                 $("#container").load(link + " #container");
+            }
+            });
+
+        })
+        });
+    </script>
+
+{% endblock %}

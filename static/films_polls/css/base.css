@@ -1,0 +1,39 @@
+
+
+.footer{
+  margin:0;
+  color: green;
+  min-height: 20%;
+}
+.profile-name{
+    padding-top: 10px;
+    padding-right:10px;
+    padding-left:60px;
+    font-size: 15pt;
+    color: white;
+}
+.header-title{
+    margin-top:10%;
+}
+.film-row{
+    padding-top:50px;
+}
+#vote-div{
+    border-radius: 10px;
+    border: 1px solid #eee;
+    padding-top:20px;
+    padding-bottom:2px;
+    padding-left:20px;
+    padding-right:20px;
+}
+#comment-div{
+    overflow-y:scroll;
+    height:400px;
+    margin-top:20px;
+    margin-bottom:50px;
+    padding-top: 20px;
+    padding-bottom:20px;
+}
+.comment-date{
+    text-align:right;
+}

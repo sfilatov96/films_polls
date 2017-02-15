@@ -1,0 +1,41 @@
+{% extends "films_polls/base.html"%}
+
+{% block content %}
+
+    <div class="header-title"><h1>Загрузить Новый фильм</h1></div>
+	<hr>
+	<br>
+	{% if mistake %}
+	<div class="alert alert-danger" role="alert">
+	<strong>Ошибка!</strong>{{mistake}}
+	</div>
+	{%endif%}
+	<form class="form-horizontal" method = "POST" action="{% url 'add_film' %} " id="register" enctype="multipart/form-data">
+		{% csrf_token %}
+        <div class="form-group">
+            <label for="title" class="col-sm-2 control-label">Название</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="title" placeholder="Название" name="title" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="about" class="col-sm-2 control-label">О фильме</label>
+            <div class="col-sm-10">
+                <textarea name="about" id="about"  class="form-control" rows="3" placeholder="Немного о фильме" required></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputFile" class="col-sm-2 control-label">Фото</label>
+            <div class="col-sm-10">
+                <input type="file" id="exampleInputFile" name="photo" required>
+                <p class="help-block">Выберите фотообложку для фильма.</p>
+            </div>
+        </div>
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+				<button type="submit" class="btn btn-primary">Загрузить</button>
+			</div>
+		</div>
+	</form>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "films_polls/base.html"%}
+
+{% block content %}
+
+    <div class="header-title"><h1>Регистрация</h1></div>
+	<hr>
+	<br>
+	{% if mistake %}
+	<div class="alert alert-danger" role="alert">
+	<strong>Ошибка!</strong>{{mistake}}
+	</div>
+	{%endif%}
+    {% if registered %}
+	<div class="alert alert-danger" role="alert">
+	<strong>Ошибка!</strong>{{registered}}
+	</div>
+	{%else%}
+	<form class="form-horizontal" method = "POST" action="{% url 'signup' %} " id="register" >
+		{% csrf_token %}
+		<div class="form-group">
+            <label for="firstname" class="col-sm-2 control-label">Фамилия</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="firstname" placeholder="Фамилия" name="first_name" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="lastname" class="col-sm-2 control-label">Имя</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="lastname" placeholder="Имя" name="last_name" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="patronyc" class="col-sm-2 control-label">Отчество</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="patronyc" placeholder="Отчество" name="patronyc" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="email" class="col-sm-2 control-label">Email</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control" id="email" placeholder="Email" name="email" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password" class="col-sm-2 control-label">Пароль</label>
+            <div class="col-sm-10">
+                <input type="password" class="form-control" id="password" placeholder="Пароль" name="password" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="repeat_password" class="col-sm-2 control-label">Пароль</label>
+            <div class="col-sm-10">
+                <input type="password" class="form-control" id="repeat_password" placeholder="Повторите Пароль" name="password" required>
+            </div>
+        </div>
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+				<button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+			</div>
+		</div>
+	</form>
+    {% endif %}
+	<script>
+  $('#register').on('submit', function(event) {
+    if ( validateForm() ) { // если есть ошибки возвращает true
+      event.preventDefault();
+    }
+  });
+
+  function validateForm() {
+
+    // Проверка паролей
+
+    var el_p1    = $("#password");
+    var el_p2    = $("#repeat_password");
+    console.log(el_p1)
+    var v_pass1 = el_p1.val()?false:true;
+    var v_pass2 = el_p1.val()?false:true;
+
+    if ( el_p1.val() != el_p2.val() ) {
+      var v_pass1 = true;
+      var v_pass2 = true;
+      el_p1.after('<p text-color="red"><span class="text-error for-pass1">Пароли не совпадают!</span></p>');
+      $(".for-pass1").css({top: el_p1.position().top + el_p1.outerHeight() + 2});
+    } else if ( el_p1.val().length < 5 ) {
+      var v_pass1 = true;
+      var v_pass2 = true;
+      el_p1.after('<span class="text-error for-pass1">Пароль должен быть не менее 5 символов</span>');
+      $(".for-pass1").css({top: el_p1.position().top + el_p1.outerHeight() + 2});
+    }
+
+    $("#pass1").toggleClass('error', v_pass1 );
+    $("#pass2").toggleClass('error', v_pass2 );
+
+    return ( v_pass1 || v_pass2 );
+  }
+
+</script>
+{% endblock %}

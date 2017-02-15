@@ -1,0 +1,40 @@
+{% extends "films_polls/base.html"%}
+
+{% block content %}
+
+    <div class="header-title"><h1>Авторизация</h1></div>
+	<hr>
+	<br>
+	{% if mistake %}
+	<div class="alert alert-danger" role="alert">
+	<strong>Ошибка!</strong>{{mistake}}
+	</div>
+	{%endif%}
+	{% if is_login %}
+	<div class="alert alert-danger" role="alert">
+	<strong>Ошибка!</strong>{{is_login}}
+	</div>
+	{%else%}
+	<form class="form-horizontal" method = "POST" action="{% url 'login' %} " id="register" >
+		{% csrf_token %}
+        <div class="form-group">
+            <label for="email" class="col-sm-2 control-label">Email</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control" id="email" placeholder="Email" name="email" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password" class="col-sm-2 control-label">Пароль</label>
+            <div class="col-sm-10">
+                <input type="password" class="form-control" id="password" placeholder="Пароль" name="password" required>
+            </div>
+        </div>
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+				<button type="submit" class="btn btn-primary">Войти</button>
+			</div>
+		</div>
+	</form>
+	{% endif %}
+
+{% endblock %}
