@@ -2,14 +2,14 @@
 {% block content %}
 
 
-<div class="header-title"><h2>Фильмы за которые, проголосовал <b>{{user.firstname}} {{user.lastname}} {{user.patronyc}}</b></h2></div>
+<div class="header-title"><h2>Фильмы, за которые проголосовал <b>{{user.firstname}} {{user.lastname}} {{user.patronyc}}</b></h2></div>
     {% if users %}
     {% for u in users %}
             <hr class="featurette-divider">
 
       <div class="row featurette">
         <div class="col-md-5">
-          <img class="featurette-image img-responsive center-block" src="{{MEDIA_URL}}{{u.photo}}" alt="Generic placeholder image">
+          <img class="featurette-image img-thumbnail center-block" src="{{MEDIA_URL}}{{u.photo}}" width="400px" height="400px" alt="Generic placeholder image">
         </div>
         <div class="col-md-7">
           <h2 class="">{{u.title}} <br><small class="text-muted">Опубликовано {{u.pub_date}}</small></h2>
@@ -19,7 +19,6 @@
 
 
         </div>
-      </div>
       </div>
 
     {% endfor %}

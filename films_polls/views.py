@@ -23,6 +23,9 @@ def index(request,page=None):
     cursor = db.cursor(cursors.DictCursor)
     if request.POST.get("remove"):
         cursor.execute("""UPDATE films_polls_film set is_deleted = true where id=%s """, (page,))
+    if request.POST.get("update"):
+        print (page),request.POST.get("title"),request.POST.get("text")
+        cursor.execute("""UPDATE films_polls_film set title = %s,text = %s where id = %s """, (request.POST.get("title"),request.POST.get("text"),page,))
     print order
     if order == "alphabet":
         sort = "title ASC"
@@ -34,7 +37,7 @@ def index(request,page=None):
         sort = "cnt DESC"
 
     query = """select * from (select film_id,count(user_id) as cnt,avg(mark) as average from polls 
-         where user_id is not null group by film_id  order by cnt desc) c inner join films_polls_film f  on f.id = c.film_id order by """ + sort
+          group by film_id  order by cnt desc) c inner join films_polls_film f  on f.id = c.film_id where f.is_deleted = false order by """ + sort
     cursor.execute(query)
 
     result = cursor.fetchall()
@@ -42,13 +45,13 @@ def index(request,page=None):
     db.commit()
     db.close()
     lst = list(chunks(result,3))
-    print request.session.get("is_admin")
     return render(request,"films_polls/index.html",{"films":lst})
 
 
 def film(request, page):
     if request.session.get("id"):
         avg_vote = None
+        is_admin = None
         all_votes = None
         count_vote = None
         db = connect()
@@ -63,38 +66,43 @@ def film(request, page):
             except KeyError:
                 pass
 
+        if request.session.get("is_superuser"):
+            is_admin = True
 
-        cursor.execute("""SELECT * FROM films_polls_film WHERE id=%s""",(page,))
+        cursor.execute("""SELECT * FROM films_polls_film WHERE id=%s AND is_deleted=false""",(page,))
         result = cursor.fetchone()
-        cursor.execute("""SELECT * FROM polls WHERE film_id=%s AND user_id=%s """, (page,request.session["id"]))
-        is_voted = cursor.fetchone()
-        if not is_voted:
-            is_voted = False
+        if result:
+            cursor.execute("""SELECT * FROM polls WHERE film_id=%s AND user_id=%s """, (page,request.session["id"]))
+            is_voted = cursor.fetchone()
+            if not is_voted:
+                is_voted = False
 
+            else:
+                is_voted = True
+                cursor.execute("""select mark,count(user_id) as qty from  polls  where film_id=%s and user_id is not null  group by mark """, (page,))
+                all_votes = cursor.fetchall()
+                cursor.execute("""select avg(mark) as average from  polls   where film_id = %s and user_id is not null """,(page,))
+                avg_vote = cursor.fetchone()
+                cursor.execute("""select count(*) as cnt from  polls   where film_id = %s and user_id is not null""", (page,))
+                count_vote = cursor.fetchone()
+
+                for i in all_votes:
+                    i.update({"percent":(100/count_vote["cnt"]*i["qty"])})
+
+            cursor.execute("""SELECT * FROM main_comments m INNER JOIN users u on u.id = m.user_id  WHERE film_id=%s and m.is_deleted = false  ORDER BY pub_date ASC""", (page,))
+            comments = cursor.fetchall()
+
+
+            cursor.close()
+            db.commit()
+            db.close()
+            print is_admin
+            context = {"film": result, "is_voted": is_voted, "avg_vote": avg_vote, "all_votes": all_votes, "count_vote": count_vote, "is_admin":is_admin}
+            if comments:
+                context.update({"comments":comments})
+            return render(request,"films_polls/film.html",context,)
         else:
-            is_voted = True
-            cursor.execute("""select mark,count(user_id) as qty from  polls  where film_id=%s and user_id is not null  group by mark """, (page,))
-            all_votes = cursor.fetchall()
-            cursor.execute("""select avg(mark) as average from  polls   where film_id = %s and user_id is not null """,(page,))
-            avg_vote = cursor.fetchone()
-            cursor.execute("""select count(*) as cnt from  polls   where film_id = %s and user_id is not null""", (page,))
-            count_vote = cursor.fetchone()
-
-            for i in all_votes:
-                i.update({"percent":(100/count_vote["cnt"]*i["qty"])})
-
-        cursor.execute("""SELECT * FROM main_comments m INNER JOIN users u on u.id = m.user_id  WHERE film_id=%s ORDER BY pub_date ASC""", (page,))
-        comments = cursor.fetchall()
-
-
-        cursor.close()
-        db.commit()
-        db.close()
-
-        context = {"film": result, "is_voted": is_voted, "avg_vote": avg_vote, "all_votes": all_votes, "count_vote": count_vote}
-        if comments:
-            context.update({"comments":comments})
-        return render(request,"films_polls/film.html",context,)
+            return render(request, "films_polls/film.html")
     else:
         return HttpResponseRedirect("/login")
 
@@ -108,7 +116,7 @@ def login(request):
         if request.POST:
             db = connect()
             cursor = db.cursor()
-            cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s ",(request.POST.get("email"),request.POST.get("password")))
+            cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s AND is_deleted = false ",(request.POST.get("email"),request.POST.get("password")))
             result = cursor.fetchone()
             if not result:
                 mistake = u"Email или пароль введены неверно! Пожалуйста, попробуйте заново!"
@@ -127,6 +135,10 @@ def login(request):
 
 def logout(request):
     del request.session["id"]
+    del request.session["email"]
+    del request.session["first_name"]
+    del request.session["last_name"]
+    del request.session["is_superuser"]
     return HttpResponseRedirect("/")
 
 
@@ -193,10 +205,13 @@ def users_films(request,user_id):
     db = connect()
     cursor = db.cursor(cursors.DictCursor)
     cursor.execute("""SELECT * FROM films_polls_film f INNER join polls p 
-    INNER JOIN users u on (u.id=p.user_id) and (p.film_id=f.id)  WHERE u.id=%s""", (user_id),)
+    INNER JOIN users u on (u.id=p.user_id) and (p.film_id=f.id)  WHERE u.id=%s AND f.is_deleted = false""", (user_id),)
     users = cursor.fetchall()
     if users:
         user = users[0]
+    else :
+        cursor.execute("""SELECT * FROM  users  WHERE id=%s AND is_deleted = false""", (user_id), )
+        user = cursor.fetchone()
 
     return render(request, "films_polls/users_films.html",{"users":users,"user":user})
 
@@ -233,3 +248,27 @@ def api(request):
     return HttpResponse(answer,content_type="application/json")
 
 
+def comment(request,id):
+    db = connect()
+    cursor = db.cursor(cursors.DictCursor)
+    cursor.execute("""UPDATE main_comments set is_deleted = true where id = %s""",(id,))
+    cursor.close()
+    db.commit()
+    db.close()
+    answer = json.dumps({"query":"ok"})
+    return HttpResponse(answer, content_type="application/json")
+
+def users(request,user_id=None):
+    db = connect()
+    cursor = db.cursor(cursors.DictCursor)
+    is_admin = None
+    if request.session.get("is_superuser"):
+        is_admin = True
+    if request.POST.get("remove") and user_id:
+        cursor.execute("""UPDATE users set is_deleted=true where id=%s """,(user_id,))
+    cursor.execute("""SELECT * FROM  users where is_deleted = false""")
+    users = cursor.fetchall()
+    cursor.close()
+    db.commit()
+    db.close()
+    return render(request,"films_polls/users.html",{"users":users,"is_admin":is_admin})

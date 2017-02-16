@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Carousel Template for Bootstrap</title>
+    <title>FilmsPolls - сайт диванных кинокритиков</title>
     <link href="{% static "films_polls/css/base.css" %}" rel="stylesheet" type="text/css">
     <link href="{% static "films_polls/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
 
@@ -47,7 +47,7 @@
 
                 <li><a href="{% url 'add_film' %}">Добавить новый фильм</a></li>
                 <li><a href="{% url 'logout' %}">Выход</a></li>
-                <li><p class="profile-name">{{request.session.first_name}}  {{request.session.last_name}}</p></li>
+                <li><p class="profile-name">{{request.session.first_name}}  {{request.session.last_name}} {{request.session.email}}</p></li>
                 {% else %}
                 <li><a href="{% url 'signup' %}">Регистрация</a></li>
                 <li><a href="{% url 'login' %}">Войти</a></li>
@@ -97,5 +97,6 @@
     <script src="{% static "films_polls/js/holder.min.js"%}"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static "films_polls/js/ie10-viewport-bug-workaround.js" %}"></script>
+    <script type="text/javascript" src="{% static "films_polls/js/jquery.leanModal.min.js"%}"></script>
   </body>
 </html>

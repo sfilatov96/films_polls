@@ -1,0 +1,59 @@
+{% extends "films_polls/base.html" %}
+{% block content %}
+<h2 class="header-title">Пользователи</h2>
+<div class="pretable">
+<table class="table table table-condensed">
+    {% csrf_token %}
+    <tr>
+        <td>Фамилия</td>
+        <td>Имя</td>
+        <td>Отчество</td>
+        <td>E-mail</td>
+        <td>Оценки:</td>
+        <td>Статус</td>
+        {% if is_admin %}
+        <td>Удалить</td>
+        {% endif%}
+    </tr>
+    {% for u in users %}
+    <tr>
+
+        <td>{{u.firstname}}</td>
+        <td>{{u.lastname}}</td>
+        <td>{{u.patronyc}}</td>
+        <td>{{u.email}}</td>
+        <td><a href="{% url 'users_films' %}{{u.id}}">ссылка</a></td>
+        {% if u.is_admin %}
+        <td>Администратор</td>
+        {% else %}
+        <td>Пользователь</td>
+        {% endif %}
+        {% if is_admin  %}
+        {% if not u.is_admin %}
+        <td><button class="btn btn-danger" data-id="{% url 'users' %}{{u.id}}" onclick="return remove(this);">Удалить пользователя</button></td>
+        {% else %}
+        <td>Запрещено</td>
+        {% endif %}
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+</div>
+<script>
+function remove(Element) {
+        var link = Element.getAttribute("data-id")
+        $.ajax({
+            type: "POST",
+            url: link,
+            dataType:"html",
+            data: {
+            "remove":true,
+            "csrfmiddlewaretoken": $('input[name=csrfmiddlewaretoken]').val()},
+            success: function(){
+             $(".pretable").load({% url 'users' %} + " table");
+        }
+        });
+
+    }
+</script>
+{% endblock %}

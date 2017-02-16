@@ -1,75 +1,84 @@
 <!-- START THE FEATURETTES -->
 {% extends "films_polls/base.html" %}
 {% block content %}
-      <hr class="featurette-divider">
+<hr class="featurette-divider">
 
-      <div class="row featurette">
-        <div class="col-md-5">
-          <img class="featurette-image img-responsive center-block" src="{{MEDIA_URL}}{{film.photo}}" alt="Generic placeholder image">
-        </div>
-        <div class="col-md-7">
-          <h2 class="">{{film.title}} <br><small class="text-muted">Опубликовано {{film.pub_date}}</small></h2>
-          <p class="lead">{{film.text}}</p>
-            <div id="vote-div" >
+<div class="row featurette">
+    {% if film %}
+    <div class="col-md-5">
+        <img class="featurette-image img-rounded center-block" src="{{MEDIA_URL}}{{film.photo}}" height="400px"
+             width="400px" alt="Generic placeholder image">
+    </div>
+    <div class="col-md-7">
+
+
+        <h2 class="">{{film.title}} <br>
+            <small class="text-muted">Опубликовано {{film.pub_date}}</small>
+        </h2>
+        <p class="lead">{{film.text}}</p>
+        <div id="prevote-div">
+            <div id="vote-div">
                 {% if is_voted %}
                 {% for i in all_votes %}
                 <label for="progress"> {{i.mark}} балл(ов)</label>
                 <div class="progress" id="progress">
-                    <div class="progress-bar" role="progressbar"   aria-valuenow="{{i.percent}}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{i.percent}}%;"> {{i.qty}} голосов
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{i.percent}}" aria-valuemin="0"
+                         aria-valuemax="100" style="min-width: 2em; width: {{i.percent}}%;"> {{i.qty}} голосов
                     </div>
                 </div>
 
                 {% endfor %}
-                 <div class="panel panel-primary">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Итого:</h3>
-                  </div>
-                  <div class="panel-body">
-                    Средний балл: {{avg_vote.average}}   Количество голосов: {{count_vote.cnt}}
-                  </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Итого:</h3>
+                    </div>
+                    <div class="panel-body">
+                        Средний балл: {{avg_vote.average}} Количество голосов: {{count_vote.cnt}}
+                    </div>
                 </div>
                 {% else %}
                 <label for="vote-form">Оцените фильм по 10-тибальной шкале:</label>
-            <form id="vote-form" method="POST">
-                {% csrf_token %}
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="1" required> 1
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="2" required> 2
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="3" required> 3
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio4" value="4" required> 4
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio5" value="5" required> 5
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio6" value="6" required> 6
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio7" value="7" required> 7
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio8" value="8" required> 8
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio9" value="9" required> 9
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="inlineRadioOptions" id="inlineRadio10" value="10" required> 10
-            </label>
-            <button type="submit" class="btn btn-primary vote-button" >Голосовать</button>
-            </form>
+                <form id="vote-form" method="POST">
+                    {% csrf_token %}
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="1" required> 1
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="2" required> 2
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="3" required> 3
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio4" value="4" required> 4
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio5" value="5" required> 5
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio6" value="6" required> 6
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio7" value="7" required> 7
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio8" value="8" required> 8
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio9" value="9" required> 9
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineRadio10" value="10" required> 10
+                    </label>
+                    <button type="submit" class="btn btn-primary vote-button">Голосовать</button>
+                </form>
                 {% endif %}
             </div>
-
         </div>
 
-          <script>
+    </div>
+
+    <script>
         jQuery(document).ready(function ($) {
     $('#vote-form').submit(function (event) {
             console.log(vote);
@@ -91,7 +100,7 @@
                     "csrfmiddlewaretoken": $('#vote-form input[name=csrfmiddlewaretoken]').val()
                 },
                 success: function(html){
-                 $("#vote-div").load("{%url 'film' %}{{film.id}} #vote-div");
+                 $("#prevote-div").load("{%url 'film' %}{{film.id}} #vote-div");
             }
             });
 
@@ -109,46 +118,76 @@
                     "csrfmiddlewaretoken": $('#comment-form input[name=csrfmiddlewaretoken]').val()
                 },
                 success: function(html){
-                    $("textarea[name='comment']").val() = "";
+                    $("textarea[name='comment']").val("");
                 }
             });
 
         })
+
+
+
         setInterval(function(){
             $("#comment-div").load("{%url 'film' %}{{film.id}} #precomment-div");
         },1000);
         });
+
+        function remove(Element){
+            var comment_id = Element.getAttribute("data-id");
+            var link = "{% url 'comment' %}"+comment_id
+            console.log(link)
+            $.ajax({
+                url: link,
+                type: "POST",
+                dataType:"html",
+                data: {
+                    "remove": true,
+                    "csrfmiddlewaretoken": $('#comment-form input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(html){
+                    console.log(Element)
+                }
+            });
+
+        }
+
     </script>
-      </div>
+</div>
 <h2>Комментарии:</h2>
 
-        <div id="comment-div" class="row">
-            <div id="precomment-div">
-                {% for c in comments%}
-                <div class="panel panel-primary">
-                  <div class="panel-heading">
-                      <h3 class="panel-title"><a href="{% url 'users_films' %}{{c.user_id}}">Пользователь: {{c.firstname}} {{c.lastname}} {{c.patronyc}} <u><i>{{c.pub_date}}</i></u></h3>
-
-                  </div>
-                  <div class="panel-body">
-                    {{c.comment}}
-                  </div>
-                </div>
-                {% endfor %}
+<div id="comment-div" class="row">
+    <div id="precomment-div">
+        {% for c in comments%}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><a href="{% url 'users_films' %}{{c.user_id}}">Пользователь: {{c.firstname}}
+                    {{c.lastname}} {{c.patronyc}} </a><i>{{c.pub_date}}</i></h3>
+                {% if is_admin %}
+                <button data-id="{{c.id}}" class="remove btn btn-danger" onclick="return remove(this);">Удалить комментарий</button>
+                {% endif %}
+            </div>
+            <div class="panel-body">
+                {{c.comment}}
             </div>
         </div>
-    <form class="form-horizontal" id="comment-form">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="about" class="col-sm-2 control-label">Ваш комментарий:</label>
-            <div class="col-sm-10">
-                <textarea name="comment" id="about"  class="form-control" rows="3" placeholder="Комментарий" required></textarea>
-            </div>
+        {% endfor %}
+    </div>
+</div>
+<form class="form-horizontal" id="comment-form">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="about" class="col-sm-2 control-label">Ваш комментарий:</label>
+        <div class="col-sm-10">
+            <textarea name="comment" id="about" class="form-control" rows="3" placeholder="Комментарий"
+                      required></textarea>
         </div>
-        <div class="form-group">
-			<div class="col-sm-offset-2 col-sm-10">
-				<button type="submit" class="btn btn-primary">Ответить</button>
-			</div>
-		</div>
-    </form>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary">Ответить</button>
+        </div>
+    </div>
+</form>
+{% else %}
+<center><h2>Фильм не найден или был удалён!</h2></center>
+{% endif %}
 {% endblock %}
