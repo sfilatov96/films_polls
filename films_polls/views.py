@@ -12,15 +12,18 @@ from .models import  Film
 def index(request,page=None):
     order = "alphabet"
 
-
+    db = connect()
+    cursor = db.cursor(cursors.DictCursor)
     if request.GET:
         try:
             order = request.GET["order"]
 
         except:
             order = "alphabet"
-    db = connect()
-    cursor = db.cursor(cursors.DictCursor)
+    if(request.session.get("id")):
+        cursor.execute("""SELECT * FROM users WHERE id=%s and is_deleted =false""", (request.session["id"],), )
+        if not cursor.fetchone():
+            logout(request)
     if request.POST.get("remove"):
         cursor.execute("""UPDATE films_polls_film set is_deleted = true where id=%s """, (page,))
     if request.POST.get("update"):
@@ -36,8 +39,9 @@ def index(request,page=None):
     if order == "popularity":
         sort = "cnt DESC"
 
-    query = """select * from (select film_id,count(user_id) as cnt,avg(mark) as average from polls 
-          group by film_id  order by cnt desc) c inner join films_polls_film f  on f.id = c.film_id where f.is_deleted = false order by """ + sort
+    query = """select * from (select film_id,count(user_id) as cnt,avg(mark) as average from polls p 
+          left join users u on p.user_id = u.id where u.is_deleted = false or p.user_id is NULL group by film_id  order by cnt desc) c inner join films_polls_film f
+           on f.id = c.film_id where f.is_deleted = false order by """ + sort
     cursor.execute(query)
 
     result = cursor.fetchall()
@@ -79,17 +83,17 @@ def film(request, page):
 
             else:
                 is_voted = True
-                cursor.execute("""select mark,count(user_id) as qty from  polls  where film_id=%s and user_id is not null  group by mark """, (page,))
+                cursor.execute("""select mark,count(user_id) as qty from  polls p inner join users u on u.id = p.user_id where film_id=%s and u.is_deleted = false group by mark """, (page,))
                 all_votes = cursor.fetchall()
-                cursor.execute("""select avg(mark) as average from  polls   where film_id = %s and user_id is not null """,(page,))
+                cursor.execute("""select avg(mark) as average from  polls p inner join users u on u.id = p.user_id  where film_id = %s and u.is_deleted = false""",(page,))
                 avg_vote = cursor.fetchone()
-                cursor.execute("""select count(*) as cnt from  polls   where film_id = %s and user_id is not null""", (page,))
+                cursor.execute("""select count(*) as cnt from  polls  p inner join users u on u.id = p.user_id where film_id = %s and u.is_deleted = false""", (page,))
                 count_vote = cursor.fetchone()
 
                 for i in all_votes:
                     i.update({"percent":(100/count_vote["cnt"]*i["qty"])})
 
-            cursor.execute("""SELECT * FROM main_comments m INNER JOIN users u on u.id = m.user_id  WHERE film_id=%s and m.is_deleted = false  ORDER BY pub_date ASC""", (page,))
+            cursor.execute("""SELECT * FROM main_comments m INNER JOIN users u on u.id = m.user_id  WHERE film_id=%s and m.is_deleted = false and u.is_deleted = false ORDER BY pub_date ASC""", (page,))
             comments = cursor.fetchall()
 
 
@@ -116,10 +120,13 @@ def login(request):
         if request.POST:
             db = connect()
             cursor = db.cursor()
-            cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s AND is_deleted = false ",(request.POST.get("email"),request.POST.get("password")))
+            cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s ",(request.POST.get("email"),request.POST.get("password")))
             result = cursor.fetchone()
             if not result:
                 mistake = u"Email или пароль введены неверно! Пожалуйста, попробуйте заново!"
+                return render(request, "films_polls/login.html",context={"mistake":mistake})
+            elif result[7] == True:
+                mistake = u"Ваш профиль заблокирован по решению администрации!"
                 return render(request, "films_polls/login.html",context={"mistake":mistake})
             else:
                 request.session["id"] = result[0]
@@ -187,16 +194,18 @@ def add_film(request):
             film.photo = request.FILES["photo"]
             print film
             film.save()
-            cursor.execute("""SELECT id FROM films_polls_film WHERE title=%s""", (request.POST["title"],))
+            cursor.execute("""SELECT id FROM films_polls_film WHERE title=%s and text=%s""", (request.POST["title"], request.POST["about"],))
             result = cursor.fetchone()
             cursor.execute("""INSERT INTO polls(film_id,mark) VALUES (%s,%s)""", (result["id"],0))
             cursor.close()
             db.commit()
             db.close()
+            return HttpResponseRedirect("/")
         return render(request, "films_polls/add_film.html")
     except KeyError:
         return HttpResponseRedirect("/login")
-
+    except Exception:
+        return render(request, "films_polls/add_film.html")
 
 
 
@@ -205,12 +214,12 @@ def users_films(request,user_id):
     db = connect()
     cursor = db.cursor(cursors.DictCursor)
     cursor.execute("""SELECT * FROM films_polls_film f INNER join polls p 
-    INNER JOIN users u on (u.id=p.user_id) and (p.film_id=f.id)  WHERE u.id=%s AND f.is_deleted = false""", (user_id),)
+    INNER JOIN users u on (u.id=p.user_id) and (p.film_id=f.id)  WHERE u.id=%s AND f.is_deleted = false and u.is_deleted = false""", (user_id,),)
     users = cursor.fetchall()
     if users:
         user = users[0]
     else :
-        cursor.execute("""SELECT * FROM  users  WHERE id=%s AND is_deleted = false""", (user_id), )
+        cursor.execute("""SELECT * FROM  users  WHERE id=%s AND is_deleted = false""", (user_id,), )
         user = cursor.fetchone()
 
     return render(request, "films_polls/users_films.html",{"users":users,"user":user})

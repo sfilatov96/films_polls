@@ -46,6 +46,8 @@
                 {% if request.session.id %}
 
                 <li><a href="{% url 'add_film' %}">Добавить новый фильм</a></li>
+                <li><a href="{% url 'users' %}">Пользователи</a></li>
+
                 <li><a href="{% url 'logout' %}">Выход</a></li>
                 <li><p class="profile-name">{{request.session.first_name}}  {{request.session.last_name}} {{request.session.email}}</p></li>
                 {% else %}

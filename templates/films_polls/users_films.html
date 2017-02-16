@@ -1,7 +1,7 @@
 {% extends "films_polls/base.html" %}
 {% block content %}
 
-
+{% if user %}
 <div class="header-title"><h2>Фильмы, за которые проголосовал <b>{{user.firstname}} {{user.lastname}} {{user.patronyc}}</b></h2></div>
     {% if users %}
     {% for u in users %}
@@ -25,5 +25,9 @@
     {% else %}
         <h2>К сожалению пока пользователь не выставлял никаких баллов</h2>
     {% endif %}
+{% else %}
+    <hr class="featurette-divider">
+    <h2>К сожалению пока пользователь не выставлял никаких баллов</h2>
+{% endif %}
 
 {% endblock %}

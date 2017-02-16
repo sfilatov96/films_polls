@@ -9,28 +9,31 @@
     <ol class="carousel-indicators">
         <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
         <li data-target="#myCarousel" data-slide-to="1"></li>
-        <li data-target="#myCarousel" data-slide-to="2"></li>
     </ol>
     <div class="carousel-inner" role="listbox">
         <div class="item active">
             <img class="first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
+                    {% if not request.session.id %}
                     <h1>Добро пожаловать на сайт кинокритиков!</h1>
                     <p>Если вы читаете эту надпись то вы обязаны зарегистрироваться на нашем сайте, чтобы не обидеть
                         автора!</p>
                     <p><a class="btn btn-lg btn-primary" href="{% url 'signup' %}" role="button">Зарегистрироваться</a>
                     </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="item">
-            <img class="first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
+            <img class="first-slide" src="{% static "films_polls/img/carusel_pic4.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
+                    {% if not request.session.id %}
                     <h1>Однако</h1>
                     <p>Если вы являетесь пользователем сайта, то немедленно войдите и оставьте новую оценку!</p>
                     <p><a class="btn btn-lg btn-primary" href="{% url 'login' %}" role="button">Войти</a></p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -135,7 +138,7 @@
         $('body').off('.data-api')
         $('.order').click(function (event) {
             event.preventDefault();
-            var link = event.toElement.href;
+            var link = event.target.href;
             console.log(link);
             $.ajax({
                 url: link,
