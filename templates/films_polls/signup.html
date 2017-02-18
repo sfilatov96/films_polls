@@ -10,6 +10,12 @@
 	<strong>Ошибка!</strong>{{mistake}}
 	</div>
 	{%endif%}
+    {% if success %}
+    <div class="alert alert-success" role="alert">
+	<strong>Поздравляем!</strong>Вы успешно зарегистрированы.
+        Осталось только подтвердить ваш email. Проверьте свой почтовый ящик! Возможно ссылка попала в спам!
+	</div>
+    {% endif %}
     {% if registered %}
 	<div class="alert alert-danger" role="alert">
 	<strong>Ошибка!</strong>{{registered}}

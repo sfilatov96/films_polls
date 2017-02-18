@@ -3,7 +3,7 @@ from django.shortcuts import render , HttpResponseRedirect,HttpResponse
 from django.contrib import auth
 from mysql_connect import connect
 from MySQLdb import IntegrityError, cursors
-from handler import chunks
+from handler import chunks,send_email_confirmation
 import json
 from .models import  Film
 
@@ -128,6 +128,9 @@ def login(request):
             elif result[7] == True:
                 mistake = u"Ваш профиль заблокирован по решению администрации!"
                 return render(request, "films_polls/login.html",context={"mistake":mistake})
+            elif result[8] == False:
+                mistake = u"Почта вашего профиля не подтверждена! Пожалуйста подтвердите почту"
+                return render(request, "films_polls/login.html",context={"mistake":mistake})
             else:
                 request.session["id"] = result[0]
                 request.session["first_name"]=result[1]
@@ -173,7 +176,8 @@ def signup(request):
                 cursor.close()
                 db.commit()
                 db.close()
-                return HttpResponseRedirect("/login")
+                send_email_confirmation(r.get("email"))
+                return render(request, "films_polls/signup.html",context={"success":True})
             except IntegrityError as e:
                 if e[0] == 1062:
                     mistake = u" Пользователь с таким email уже существует"
@@ -281,3 +285,20 @@ def users(request,user_id=None):
     db.commit()
     db.close()
     return render(request,"films_polls/users.html",{"users":users,"is_admin":is_admin})
+
+
+def activate(request):
+    key = request.GET.get("key")
+    if key:
+        db = connect()
+        cursor = db.cursor(cursors.DictCursor)
+        cursor.execute("select email from users_confirmation where `key`=%s", (key,),)
+        result = cursor.fetchone()
+        if result:
+            cursor.execute("UPDATE users set is_confirmed = true where email=%s", (result.get("email"),),)
+            cursor.close()
+            db.commit()
+            db.close()
+        else:
+            return render(request, "films_polls/signup.html",context={"mistake":"Почта не подтверждена так как неверная ссылка."})
+    return HttpResponseRedirect("/login")

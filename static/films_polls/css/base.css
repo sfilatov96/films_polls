@@ -49,6 +49,10 @@
     display: none;
 }
 
+.carusel-img{
+    filter: progid:DXImageTransform.Microsoft.Blur(pixelRadius=5);
+}
+
 
 
 

@@ -11,8 +11,8 @@
         <li data-target="#myCarousel" data-slide-to="1"></li>
     </ol>
     <div class="carousel-inner" role="listbox">
-        <div class="item active">
-            <img class="first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
+        <div class="item active carusel-img ">
+            <img class="carusel-img first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
                     {% if not request.session.id %}
@@ -56,11 +56,11 @@
             aria-expanded="false">
         Сортировать по <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu">
-        <li><a href="{% url 'index' %}?order=alphabet" class="order">Алфавиту</a></li>
-        <li><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
-        <li><a href="{% url 'index' %}?order=rating" class="order">Рейтингу</a></li>
-        <li><a href="{% url 'index' %}?order=popularity" class="order">Популярности</a></li>
+    <ul class="dropdown-menu " id="sorting-menu">
+        <li class="sorting-point"><a href="{% url 'index' %}?order=alphabet" class="order">Алфавиту</a></li>
+        <li class="sorting-point"><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
+        <li class="sorting-point"><a href="{% url 'index' %}?order=rating" class="order">Рейтингу</a></li>
+        <li class="sorting-point"><a href="{% url 'index' %}?order=popularity" class="order">Популярности</a></li>
         {% csrf_token %}
     </ul>
 </div>
@@ -139,7 +139,10 @@
         $('.order').click(function (event) {
             event.preventDefault();
             var link = event.target.href;
-            console.log(link);
+
+            $(".sorting-point").removeClass("active");
+            event.target.parentNode.className += "  active"
+            console.log(event.target.parentNode)
             $.ajax({
                 url: link,
                 success: function(){

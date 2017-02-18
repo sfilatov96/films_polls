@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^login/?', views.login, name='login'),
     url(r'^logout/?', views.logout, name='logout'),
     url(r'^signup/?', views.signup, name='signup'),
+    url(r'^activate/?', views.activate, name='activate'),
     url(r'^film/(?P<page>\d+)?/?', views.film, name='film'),
     url(r'^comment/(?P<id>\d+)?/?', views.comment, name='comment'),
     url(r'^users_films/(?P<user_id>\d+)?/?', views.users_films, name='users_films'),

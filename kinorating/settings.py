@@ -49,6 +49,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'filmspolls@gmail.com'
+EMAIL_HOST_PASSWORD = 'qwerty654321'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'filmspolls@gmail.com'
+SERVER_EMAIL = 'filmspolls@gmail.com'
+
+
 ROOT_URLCONF = 'kinorating.urls'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
