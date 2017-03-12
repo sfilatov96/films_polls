@@ -15,7 +15,7 @@
             <img class="carusel-img first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
-                    {% if not request.session.id %}
+                    {% if not user.is_authenticated %}
                     <h1>Добро пожаловать на сайт кинокритиков!</h1>
                     <p>Если вы читаете эту надпись то вы обязаны зарегистрироваться на нашем сайте, чтобы не обидеть
                         автора!</p>
@@ -29,7 +29,7 @@
             <img class="first-slide" src="{% static "films_polls/img/carusel_pic4.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
-                    {% if not request.session.id %}
+                    {% if not user.is_authenticated %}
                     <h1>Однако</h1>
                     <p>Если вы являетесь пользователем сайта, то немедленно войдите и оставьте новую оценку!</p>
                     <p><a class="btn btn-lg btn-primary" href="{% url 'login' %}" role="button">Войти</a></p>
@@ -57,8 +57,8 @@
         Сортировать по <span class="caret"></span>
     </button>
     <ul class="dropdown-menu " id="sorting-menu">
+	<li class="sorting-point active"><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
         <li class="sorting-point"><a href="{% url 'index' %}?order=alphabet" class="order">Алфавиту</a></li>
-        <li class="sorting-point"><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
         <li class="sorting-point"><a href="{% url 'index' %}?order=rating" class="order">Рейтингу</a></li>
         <li class="sorting-point"><a href="{% url 'index' %}?order=popularity" class="order">Популярности</a></li>
         {% csrf_token %}
@@ -79,7 +79,7 @@
 
             <p><a class="btn btn-default" href="{% url 'film' %}{{j.id}}" role="button">Подробнее&raquo;</a></p>
 
-            {% if request.session.is_superuser %}
+            {% if user.is_superuser %}
 
             <p>
                 <button class="btn btn-danger remove" data-id="{% url 'index' %}{{j.id}}"

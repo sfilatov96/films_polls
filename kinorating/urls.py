@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^users_films/(?P<user_id>\d+)?/?', views.users_films, name='users_films'),
     url(r'^add_film/?', views.add_film, name='add_film'),
     url(r'^users/(?P<user_id>\d+)?/??', views.users, name='users'),
+    url(r'^api/film/(?P<page>\d+)/?', views.api_film, name='api_film'),
     url(r'^api/?', views.api, name='api'),
     url(r'^(?P<page>\d+)?/?', views.index, name='index'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

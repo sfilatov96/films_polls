@@ -23,6 +23,6 @@ def send_email_confirmation(email):
     db.close()
     email_subject = 'Подтверждение email-адреса на сайте FilmsPolls.tk'
     email_body = """Чтобы подтвердить email пожалуйста пройдите по ссылке ниже \n
-    http://127.0.0.1:8080/activate?key=%s""" % (key)
+    http://filmspolls.tk/activate?key=%s""" % (key)
     send_mail(email_subject, email_body, 'myemail@example.com',
               [email], fail_silently=False)

@@ -43,13 +43,13 @@
               <ul class="nav navbar-nav">
                 <li><a href="{% url 'index' %}">Главная</a></li>
 
-                {% if request.session.id %}
+                {% if user.is_authenticated %}
 
                 <li><a href="{% url 'add_film' %}">Добавить новый фильм</a></li>
                 <li><a href="{% url 'users' %}">Пользователи</a></li>
 
                 <li><a href="{% url 'logout' %}">Выход</a></li>
-                <li><p class="profile-name">{{request.session.first_name}}  {{request.session.last_name}} {{request.session.email}}</p></li>
+                <li><p class="profile-name">{{user.first_name}}  {{user.last_name}} {{user.email}}</p></li>
                 {% else %}
                 <li><a href="{% url 'signup' %}">Регистрация</a></li>
                 <li><a href="{% url 'login' %}">Войти</a></li>

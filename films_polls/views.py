@@ -5,51 +5,57 @@ from mysql_connect import connect
 from MySQLdb import IntegrityError, cursors
 from handler import chunks,send_email_confirmation
 import json
-from .models import  Film
+from .models import  Film,CustomUser
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 
 def index(request,page=None):
-    order = "alphabet"
+    lst = []
+    films = Film.objects.all()
+    # order = "alphabet"
+    #
+    # db = connect()
+    # cursor = db.cursor(cursors.DictCursor)
+    # if request.GET:
+    #     try:
+    #         order = request.GET["order"]
+    #
+    #     except:
+    #         order = "alphabet"
+    # if(request.session.get("id")):
+    #     cursor.execute("""SELECT * FROM users WHERE id=%s and is_deleted =false""", (request.session["id"],), )
+    #     if not cursor.fetchone():
+    #         logout(request)
+    # if request.POST.get("remove"):
+    #     cursor.execute("""UPDATE films_polls_film set is_deleted = true where id=%s """, (page,))
+    # if request.POST.get("update"):
+    #     print (page),request.POST.get("title"),request.POST.get("text")
+    #     cursor.execute("""UPDATE films_polls_film set title = %s,text = %s where id = %s """, (request.POST.get("title"),request.POST.get("text"),page,))
+    # print order
+    # if order == "alphabet":
+    #     sort = "title ASC"
+    # if order == "date":
+    #     sort = "pub_date DESC"
+    # if order == "rating":
+    #     sort = "average DESC"
+    # if order == "popularity":
+    #     sort = "cnt DESC"
+    #
+    # query = """select * from (select film_id,count(user_id) as cnt,avg(mark) as average from polls p
+    #       left join users u on p.user_id = u.id where u.is_deleted = false or p.user_id is NULL group by film_id  order by cnt desc) c inner join films_polls_film f
+    #        on f.id = c.film_id where f.is_deleted = false order by """ + sort
+    # cursor.execute(query)
+    #
+    # result = cursor.fetchall()
+    # cursor.close()
+    # db.commit()
+    # db.close()
 
-    db = connect()
-    cursor = db.cursor(cursors.DictCursor)
-    if request.GET:
-        try:
-            order = request.GET["order"]
-
-        except:
-            order = "alphabet"
-    if(request.session.get("id")):
-        cursor.execute("""SELECT * FROM users WHERE id=%s and is_deleted =false""", (request.session["id"],), )
-        if not cursor.fetchone():
-            logout(request)
-    if request.POST.get("remove"):
-        cursor.execute("""UPDATE films_polls_film set is_deleted = true where id=%s """, (page,))
-    if request.POST.get("update"):
-        print (page),request.POST.get("title"),request.POST.get("text")
-        cursor.execute("""UPDATE films_polls_film set title = %s,text = %s where id = %s """, (request.POST.get("title"),request.POST.get("text"),page,))
-    print order
-    if order == "alphabet":
-        sort = "title ASC"
-    if order == "date":
-        sort = "pub_date DESC"
-    if order == "rating":
-        sort = "average DESC"
-    if order == "popularity":
-        sort = "cnt DESC"
-
-    query = """select * from (select film_id,count(user_id) as cnt,avg(mark) as average from polls p 
-          left join users u on p.user_id = u.id where u.is_deleted = false or p.user_id is NULL group by film_id  order by cnt desc) c inner join films_polls_film f
-           on f.id = c.film_id where f.is_deleted = false order by """ + sort
-    cursor.execute(query)
-
-    result = cursor.fetchall()
-    cursor.close()
-    db.commit()
-    db.close()
-    lst = list(chunks(result,3))
-    return render(request,"films_polls/index.html",{"films":lst})
+    films = list(chunks(films,3))
+    print films
+    return render(request,"films_polls/index.html",{"films":films})
 
 
 def film(request, page):
@@ -112,104 +118,67 @@ def film(request, page):
 
 
 def login(request):
-    try:
-        print request.session["id"]
-        already_login = "вы уже залогинены"
-    except KeyError:
-        already_login = None
-        if request.POST:
-            db = connect()
-            cursor = db.cursor()
-            cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s ",(request.POST.get("email"),request.POST.get("password")))
-            result = cursor.fetchone()
-            if not result:
-                mistake = u"Email или пароль введены неверно! Пожалуйста, попробуйте заново!"
-                return render(request, "films_polls/login.html",context={"mistake":mistake})
-            elif result[7] == True:
-                mistake = u"Ваш профиль заблокирован по решению администрации!"
-                return render(request, "films_polls/login.html",context={"mistake":mistake})
-            elif result[8] == False:
+    if request.POST:
+        user = auth.authenticate(username=request.POST.get("email"),password="258147")
+        print user
+        if user is not None:
+            if user.is_active:
+                auth.login(request,user)
+                return HttpResponseRedirect("/")
+            else:
                 mistake = u"Почта вашего профиля не подтверждена! Пожалуйста подтвердите почту"
                 return render(request, "films_polls/login.html",context={"mistake":mistake})
-            else:
-                request.session["id"] = result[0]
-                request.session["first_name"]=result[1]
-                request.session["last_name"]=result[2]
-                request.session["email"]=result[4]
-                request.session["is_superuser"]=result[6]
-                return HttpResponseRedirect("/")
+        else:
 
-
-    return render(request,"films_polls/login.html",{"is_login":already_login})
+            mistake = u"Email или пароль введены неверно! Пожалуйста, попробуйте заново!"
+            return render(request, "films_polls/login.html",context={"mistake":mistake})
+    return render(request,"films_polls/login.html")
 
 
 def logout(request):
-    del request.session["id"]
-    del request.session["email"]
-    del request.session["first_name"]
-    del request.session["last_name"]
-    del request.session["is_superuser"]
+    auth.logout(request)
     return HttpResponseRedirect("/")
 
 
 def signup(request):
-    try:
-        print request.session["id"]
-        already_registered = "вы уже зарегистрированы"
-    except KeyError:
-        already_registered = None
-        db = connect()
-        cursor = db.cursor()
-        try:
-            redirect_to = request.GET['next']
-        except KeyError:
-            redirect_to = '/'
+    redirect_to = '/'
 
-        if request.POST:
-            r = dict(request.POST)
-            for i in r:
-                r[i] = r[i][0]
-            print r
-            try:
-                cursor.execute("INSERT INTO users(firstname,lastname,patronyc,email,password) VALUES (%s,%s,%s,%s,%s)" ,
-                               (r.get("first_name"), r.get("last_name"), r.get("patronyc"), r.get("email"), r.get("password")))
-                cursor.close()
-                db.commit()
-                db.close()
-                send_email_confirmation(r.get("email"))
-                return render(request, "films_polls/signup.html",context={"success":True})
-            except IntegrityError as e:
-                if e[0] == 1062:
-                    mistake = u" Пользователь с таким email уже существует"
-                    return render(request, "films_polls/signup.html",context={"mistake":mistake})
-
-    return render(request,"films_polls/signup.html",{"registered":already_registered})
+    if request.POST:
+        r = request.POST
+        user = User.objects.create_user(username=r.get("email"), password=r.get("password"),
+                                        email=r.get("email"), first_name=r.get("first_name"),
+                                        last_name=r.get("last_name"))
+        customUser = CustomUser()
+        user.save()
+        customUser.user = user
+        customUser.patronyc = r.get("patronyc")
+        customUser.save()
 
 
+        return HttpResponseRedirect(redirect_to)
+
+    return render(request,"films_polls/signup.html")
+
+@login_required
 def add_film(request):
-    try :
-        print request.session["id"]
         if request.POST:
-            db = connect()
-            cursor = db.cursor(cursors.DictCursor)
+            # db = connect()
+            # cursor = db.cursor(cursors.DictCursor)
             film = Film()
             film.title = request.POST["title"]
             film.text = request.POST["about"]
             film.photo = request.FILES["photo"]
             print film
             film.save()
-            cursor.execute("""SELECT id FROM films_polls_film WHERE title=%s and text=%s""", (request.POST["title"], request.POST["about"],))
-            result = cursor.fetchone()
-            cursor.execute("""INSERT INTO polls(film_id,mark) VALUES (%s,%s)""", (result["id"],0))
-            cursor.close()
-            db.commit()
-            db.close()
+            # cursor.execute("""SELECT id FROM films_polls_film WHERE title=%s and text=%s""", (request.POST["title"], request.POST["about"],))
+            # result = cursor.fetchone()
+            # cursor.execute("""INSERT INTO polls(film_id,mark) VALUES (%s,%s)""", (result["id"],0))
+            # cursor.close()
+            # db.commit()
+            # db.close()
             return HttpResponseRedirect("/")
         return render(request, "films_polls/add_film.html")
-    except KeyError:
-        return HttpResponseRedirect("/login")
-    except Exception:
-        return render(request, "films_polls/add_film.html")
+
 
 
 
@@ -302,3 +271,34 @@ def activate(request):
         else:
             return render(request, "films_polls/signup.html",context={"mistake":"Почта не подтверждена так как неверная ссылка."})
     return HttpResponseRedirect("/login")
+
+
+def api_film(request,page):
+    db = connect()
+    cursor = db.cursor(cursors.DictCursor)
+    cursor.execute("""SELECT * FROM films_polls_film WHERE id=%s AND is_deleted=false""", (page,))
+    result = cursor.fetchone()
+    if result:
+        cursor.execute(
+            """select mark,count(user_id) as users_count from  polls p inner join users u on u.id = p.user_id where film_id=%s and u.is_deleted = false group by mark """,
+            (page,))
+        all_votes = cursor.fetchall()
+        cursor.execute(
+            """select avg(mark) as average_vote from  polls p inner join users u on u.id = p.user_id  where film_id = %s and u.is_deleted = false""",
+            (page,))
+        avg_vote = cursor.fetchone()
+        cursor.execute(
+            """select count(*) as votes from  polls  p inner join users u on u.id = p.user_id where film_id = %s and u.is_deleted = false""",
+            (page,))
+        count_vote = cursor.fetchone()
+        result.update({"users_votes":all_votes})
+        result.update(avg_vote)
+        result.update(count_vote)
+        result["average_vote"] = int(result["average_vote"])
+        result["pub_date"] = str(result["pub_date"])
+        answer = json.dumps({"answer": result})
+        return HttpResponse(answer, content_type="application/json")
+    else:
+        answer = json.dumps({"answer": "film_not_found"})
+
+        return HttpResponse(answer, content_type="application/json")
