@@ -5,31 +5,31 @@
 <table class="table table table-condensed">
     {% csrf_token %}
     <tr>
-        <td>Фамилия</td>
-        <td>Имя</td>
-        <td>Отчество</td>
-        <td>E-mail</td>
-        <td>Оценки:</td>
-        <td>Статус</td>
-        {% if is_admin %}
-        <td>Удалить</td>
+        <td><b>Фамилия</b></td>
+        <td><b>Имя</b></td>
+        <td><b>Отчество</b></td>
+        <td><b>E-mail</b></td>
+        <td><b>Оценки:</b></td>
+        <td><b>Статус</b></td>
+        {% if user.is_superuser %}
+        <td><b>Удалить</b></td>
         {% endif%}
     </tr>
     {% for u in users %}
     <tr>
 
-        <td>{{u.firstname}}</td>
-        <td>{{u.lastname}}</td>
+        <td>{{u.user.first_name}}</td>
+        <td>{{u.user.last_name}}</td>
         <td>{{u.patronyc}}</td>
-        <td>{{u.email}}</td>
+        <td>{{u.user.email}}</td>
         <td><a href="{% url 'users_films' %}{{u.id}}">ссылка</a></td>
-        {% if u.is_admin %}
+        {% if u.user.is_superuser %}
         <td>Администратор</td>
         {% else %}
         <td>Пользователь</td>
         {% endif %}
-        {% if is_admin  %}
-        {% if not u.is_admin %}
+        {% if user.is_superuser  %}
+        {% if not u.user.is_superuser %}
         <td><button class="btn btn-danger" data-id="{% url 'users' %}{{u.id}}" onclick="return remove(this);">Удалить пользователя</button></td>
         {% else %}
         <td>Запрещено</td>

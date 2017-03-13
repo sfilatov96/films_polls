@@ -22,6 +22,13 @@ class CustomUser(models.Model):
         return self.user.username
 
 class Poll(models.Model):
-    user_id = models.ForeignKey("CustomUser",on_delete=models.CASCADE)
-    film_id = models.ForeignKey("Film",on_delete=models.CASCADE)
-    mark_id = models.IntegerField(null=False)
+    user = models.ForeignKey("CustomUser",on_delete=models.CASCADE)
+    film = models.ForeignKey("Film",on_delete=models.CASCADE)
+    mark = models.IntegerField(null=False)
+
+class Comment(models.Model):
+    user = models.ForeignKey("CustomUser",on_delete=models.CASCADE)
+    film = models.ForeignKey("Film",on_delete=models.CASCADE)
+    text = models.TextField(null=False)
+    pub_date = models.DateTimeField(default=datetime.datetime.now())
+    is_deleted = models.BooleanField(default=0)

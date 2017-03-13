@@ -50,7 +50,11 @@
 }
 
 .carusel-img{
-    filter: progid:DXImageTransform.Microsoft.Blur(pixelRadius=5);
+    filter: brightness(0.4);
+    -webkit-filter: brightness(0.4);
+    -moz-filter: brightness(0.4);
+    -o-filter: brightness(0.4);
+    -ms-filter: brightness(0.4);
 }
 
 

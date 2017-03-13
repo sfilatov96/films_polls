@@ -33,7 +33,7 @@
                         <h3 class="panel-title">Итого:</h3>
                     </div>
                     <div class="panel-body">
-                        Средний балл: {{avg_vote.average}} Количество голосов: {{count_vote.cnt}}
+                        Средний балл: {{avg_vote.mark__avg}} Количество голосов: {{count_vote}}
                     </div>
                 </div>
                 {% else %}
@@ -152,26 +152,27 @@
 
     </script>
 </div>
-<h2>Комментарии:</h2>
+<h2>Комментарии({{comments|length}}):</h2>
 
 <div id="comment-div" class="row">
     <div id="precomment-div">
         {% for c in comments%}
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title"><a href="{% url 'users_films' %}{{c.user_id}}">Пользователь: {{c.firstname}}
-                    {{c.lastname}} {{c.patronyc}} </a><i>{{c.pub_date}}</i></h3>
-                {% if is_admin %}
+                <h3 class="panel-title"><a href="{% url 'users_films' %}{{c.user_id}}">Пользователь: {{c.user.user.first_name}}
+                    {{c.user.user.last_name}} {{c.user.patronyc}} </a><i>{{c.pub_date}}</i></h3>
+                {% if user.is_superuser %}
                 <button data-id="{{c.id}}" class="remove btn btn-danger" onclick="return remove(this);">Удалить комментарий</button>
                 {% endif %}
             </div>
             <div class="panel-body">
-                {{c.comment}}
+                {{c.text}}
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
+{% if user.is_authenticated %}
 <form class="form-horizontal" id="comment-form">
     {% csrf_token %}
     <div class="form-group">
@@ -187,6 +188,7 @@
         </div>
     </div>
 </form>
+{% endif %}
 {% else %}
 <center><h2>Фильм не найден или был удалён!</h2></center>
 {% endif %}

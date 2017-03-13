@@ -11,7 +11,7 @@
         <li data-target="#myCarousel" data-slide-to="1"></li>
     </ol>
     <div class="carousel-inner" role="listbox">
-        <div class="item active carusel-img ">
+        <div class="item active  ">
             <img class="carusel-img first-slide" src="{% static "films_polls/img/carusel_pic.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="item">
-            <img class="first-slide" src="{% static "films_polls/img/carusel_pic4.jpg"%}" alt="First slide">
+            <img class="first-slide carusel-img" src="{% static "films_polls/img/carusel_pic4.jpg"%}" alt="First slide">
             <div class="container">
                 <div class="carousel-caption">
                     {% if not user.is_authenticated %}
@@ -70,11 +70,12 @@
     <div class="row film-row">
         {% for j in i%}
         <div class="col-lg-4">
-            <img class="img-circle" src="{% get_media_prefix %}{{j.photo}}" alt="Generic placeholder image" width="200"
+            <img class="img-rounded" src="{% get_media_prefix %}{{j.photo}}" alt="Generic placeholder image" width="200"
                  height="200">
             <h2>{{j.title}} </h2>
             <h4>{{j.text}}</h4>
             <p><b>Количество голосов: {{j.cnt}}</b></p>
+            <p><b>Средний балл: {{j.average.mark__avg}}</b></p>
             <p><i>Опубликовано: {{j.pub_date}}</i></p>
 
             <p><a class="btn btn-default" href="{% url 'film' %}{{j.id}}" role="button">Подробнее&raquo;</a></p>
