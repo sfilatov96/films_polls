@@ -57,6 +57,9 @@
     -ms-filter: brightness(0.4);
 }
 
-
+.shadow {
+    box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Параметры тени */
+    padding: 0px;
+   }
 
 

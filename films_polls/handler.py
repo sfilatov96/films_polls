@@ -10,17 +10,7 @@ def chunks(lst, count):
         yield lst[i:i+3]
 
 
-def send_email_confirmation(email):
-
-    h = hashlib.sha1('salt' + email)
-    h = hashlib.sha1('salt' + h.hexdigest())
-    key = h.hexdigest()
-    db = connect()
-    cursor = db.cursor(cursors.DictCursor)
-    cursor.execute("""INSERT INTO users_confirmation(`email`,`key`) VALUES (%s,%s)""", (email,key),)
-    cursor.close()
-    db.commit()
-    db.close()
+def send_email_confirmation(email, key):
     email_subject = 'Подтверждение email-адреса на сайте FilmsPolls.tk'
     email_body = """Чтобы подтвердить email пожалуйста пройдите по ссылке ниже \n
     http://filmspolls.tk/activate?key=%s""" % (key)

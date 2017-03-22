@@ -57,8 +57,8 @@
         Сортировать по <span class="caret"></span>
     </button>
     <ul class="dropdown-menu " id="sorting-menu">
-	<li class="sorting-point active"><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
         <li class="sorting-point"><a href="{% url 'index' %}?order=alphabet" class="order">Алфавиту</a></li>
+	    <li class="sorting-point active"><a href="{% url 'index' %}?order=date" class="order">Дате публикации</a></li>
         <li class="sorting-point"><a href="{% url 'index' %}?order=rating" class="order">Рейтингу</a></li>
         <li class="sorting-point"><a href="{% url 'index' %}?order=popularity" class="order">Популярности</a></li>
         {% csrf_token %}
@@ -70,12 +70,15 @@
     <div class="row film-row">
         {% for j in i%}
         <div class="col-lg-4">
-            <img class="img-rounded" src="{% get_media_prefix %}{{j.photo}}" alt="Generic placeholder image" width="200"
+            <img class="img-rounded shadow" src="{% get_media_prefix %}{{j.photo}}" alt="Generic placeholder image" width="200"
                  height="200">
             <h2>{{j.title}} </h2>
-            <h4>{{j.text}}</h4>
             <p><b>Количество голосов: {{j.cnt}}</b></p>
+            {% if j.average.mark__avg %}
             <p><b>Средний балл: {{j.average.mark__avg}}</b></p>
+            {% else %}
+            <p><b>Средний балл: 0</b></p>
+            {% endif %}
             <p><i>Опубликовано: {{j.pub_date}}</i></p>
 
             <p><a class="btn btn-default" href="{% url 'film' %}{{j.id}}" role="button">Подробнее&raquo;</a></p>
