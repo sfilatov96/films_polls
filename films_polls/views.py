@@ -76,6 +76,8 @@ def show_film_page(request, page):
 def login(request):
     if request.GET.get("signup"):
         signup = request.GET.get("signup")
+    else:
+        signup = None
     if request.GET.get("next"):
         redirect_to = request.GET.get("next")
     else:
